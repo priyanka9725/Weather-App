@@ -13,7 +13,6 @@ let getCity = () => {
   } else {
     alert("Please enter a city name");
   }
-  city = "";
 };
 
 document.getElementById("search-btn").addEventListener("click", getCity);
@@ -41,7 +40,8 @@ document
   .addEventListener("click", getCurrentLocation);
 
 function isDaytime(sunrise, sunset) {
-  const now = Math.floor(new Date().getTime() / 1000); // Current time in seconds
+  // checking whether it is day or night
+  const now = Math.floor(new Date().getTime() / 1000);
   return now >= sunrise && now < sunset;
 }
 
@@ -56,6 +56,8 @@ function saveCity(city) {
   }
   localStorage.setItem("recentCities", JSON.stringify(cities));
 }
+
+// localStorage.clear();
 
 // function for displaying recent searches (maximum 5)
 
@@ -185,18 +187,25 @@ function displayCurrentWeather(data) {
   );
 
   container.innerHTML = `
-        <div class="bg-gray-200 hover:bg-gradient-to-r from-gray-300/[0.5] to-blue-100 text-black p-4 rounded shadow-lg">
-            <h2 class="text-2xl font-bold text-blue-900">${data.name}, ${data.sys.country}</h2>
-            <p class="text-lg"><i class="${weatherIcon}"></i> ${data.weather[0].description}</p>
+            <div class= " flex justify-between bg-gray-200 hover:bg-gradient-to-r from-gray-300/[0.5] to-blue-100 text-black p-4 rounded shadow-lg">
+            <div class="flex flex-col ">
+            <h2 class="text-2xl font-bold text-blue-900 my-2">${data.name}, ${data.sys.country}</h2>
+            <p class="text-lg font-semibold"> ${data.weather[0].description}</p>
             <p class="text-lg">Temperature: ${data.main.temp} °C</p>
             <p class="text-lg">Humidity: ${data.main.humidity}%</p>
             <p class="text-lg">Wind Speed: ${data.wind.speed} m/s</p>
-        </div>
+            </div>
+            <div>
+            <i class="${weatherIcon} text-4xl"></i>
+            </div>
+            </div>
 
         `;
+
   //for displaying current time
 
   const localTimeContainer = document.getElementById("local-time");
+  localTimeContainer.classList.remove("hidden"); //
   localTimeContainer.innerHTML = `
         <h3 class="text-xl font-bold">Local Time</h3>
         <p>${localTime}</p>
@@ -239,23 +248,26 @@ function getLocalTime(timezoneOffset) {
   return localTime.toLocaleString("en-US", { timeZone: "UTC" });
 }
 
-// function to display 5-day forecast
+// function to display 7-day forecast
 
 function displayForecast(data) {
   const container = document.getElementById("forecast-container");
+  const heading = document.getElementById("heading");
+  heading.classList.remove("hidden");
   const dailyForecasts = getDailyForecasts(data.list);
 
   container.innerHTML = dailyForecasts
     .map((forecast) => {
       const weatherIcon = getWeatherIcon(forecast.weather[0].main, true);
       return `
-        <div class="bg-gray-200 hover:bg-gradient-to-r from-gray-300/[0.5] to-blue-100 p-4 text-black rounded shadow">
-          <h3 class="text-xl font-bold text-blue-900">${new Date(
+        <div class="flex flex-col items-center bg-gray-200 hover:bg-gradient-to-r from-gray-300/[0.5] to-blue-100 p-4 text-black rounded shadow">
+          <h3 class="text-xl font-bold text-blue-900 my-2">${new Date(
             forecast.dt * 1000
           ).toLocaleDateString()}</h3>
-          <p class="text-lg"><i class="${weatherIcon}"></i> ${
-        forecast.weather[0].description
-      }</p>
+          <i class="${weatherIcon} text-2xl"></i>
+          <p class="text-lg font-semibold"> ${
+            forecast.weather[0].description
+          }</p>
           <p class="text-lg">Temp: ${forecast.main.temp} °C</p>
           <p class="text-lg">Humidity: ${forecast.main.humidity}%</p>
           <p class="text-lg">Wind: ${forecast.wind.speed} m/s</p>
@@ -279,7 +291,7 @@ function getDailyForecasts(forecasts) {
     }
   });
 
-  return dailyForecasts.slice(0, 5);
+  return dailyForecasts.slice(0, 7);
 }
 
 // function for updating background as per the weather condition
