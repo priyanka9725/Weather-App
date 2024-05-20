@@ -2,7 +2,7 @@ const apiKey = "4e1f16e5eefd5f9fff7a61ce2643cc39";
 const apiBaseUrl = "https://api.openweathermap.org/data/2.5/";
 const maxRecentCities = 5;
 
-document.getElementById("search-btn").addEventListener("click", () => {
+let getCity = () => {
   const city = document.getElementById("city-input").value;
   if (city) {
     updateWeatherByCity(city);
@@ -11,26 +11,34 @@ document.getElementById("search-btn").addEventListener("click", () => {
   } else {
     alert("Please enter a city name");
   }
-});
+};
 
+document.getElementById("search-btn").addEventListener("click", getCity);
+
+let getCurrentLocation = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        updateWeatherByCoordinates(lat, lon);
+      },
+      () => {
+        alert("Unable to retrieve your location");
+      }
+    );
+  } else {
+    alert("Geolocation is not supported by your browser");
+  }
+};
 document
   .getElementById("current-location-btn")
-  .addEventListener("click", () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          updateWeatherByCoordinates(lat, lon);
-        },
-        () => {
-          alert("Unable to retrieve your location");
-        }
-      );
-    } else {
-      alert("Geolocation is not supported by your browser");
-    }
-  });
+  .addEventListener("click", getCurrentLocation);
+
+function isDaytime(sunrise, sunset) {
+  const now = Math.floor(new Date().getTime() / 1000); // Current time in seconds
+  return now >= sunrise && now < sunset;
+}
 
 function saveCity(city) {
   let cities = JSON.parse(localStorage.getItem("recentCities")) || [];
@@ -127,8 +135,9 @@ async function updateWeatherByCity(city) {
   if (weatherData && forecastData) {
     displayCurrentWeather(weatherData);
     displayForecast(forecastData);
-    updateBackground(weatherData.weather[0].main);
-    document.getElementById("city-input").value = ""
+    const isDay = isDaytime(weatherData.sys.sunrise, weatherData.sys.sunset);
+    updateBackground(weatherData.weather[0].main, isDay);
+    document.getElementById("city-input").value = "";
   }
 }
 
@@ -138,14 +147,18 @@ async function updateWeatherByCoordinates(lat, lon) {
   if (weatherData && forecastData) {
     displayCurrentWeather(weatherData);
     displayForecast(forecastData);
-    updateBackground(weatherData.weather[0].main);
+    const isDay = isDaytime(weatherData.sys.sunrise, weatherData.sys.sunset);
+    updateBackground(weatherData.weather[0].main, isDay);
   }
 }
 
 function displayCurrentWeather(data) {
   const container = document.getElementById("weather-container");
+
+  const localTime = getLocalTime(data.timezone);
+
   container.innerHTML = `
-        <div class="bg-white p-4 rounded shadow">
+        <div id="displayWeather" class="bg-white p-4 rounded shadow">
             <h2 class="text-2xl font-bold">${data.name}, ${data.sys.country}</h2>
             <p class="text-lg">${data.weather[0].description}</p>
             <p class="text-lg">Temperature: ${data.main.temp} °C</p>
@@ -153,6 +166,17 @@ function displayCurrentWeather(data) {
             <p class="text-lg">Wind Speed: ${data.wind.speed} m/s</p>
         </div>
     `;
+
+  const localTimeContainer = document.getElementById("local-time");
+  localTimeContainer.innerHTML = `
+        <h3 class="text-xl font-bold">Local Time</h3>
+        <p>${localTime}</p>
+    `;
+}
+function getLocalTime(timezoneOffset) {
+  const now = new Date();
+  const localTime = new Date(now.getTime() + timezoneOffset * 1000);
+  return localTime.toLocaleString("en-US", { timeZone: "UTC" });
 }
 
 function displayForecast(data) {
@@ -162,16 +186,16 @@ function displayForecast(data) {
   container.innerHTML = dailyForecasts
     .map((forecast) => {
       return `
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="text-xl font-bold">${new Date(
-                  forecast.dt * 1000
-                ).toLocaleDateString()}</h3>
-                <p class="text-lg">${forecast.weather[0].description}</p>
-                <p class="text-lg">Temp: ${forecast.main.temp} °C</p>
-                <p class="text-lg">Humidity: ${forecast.main.humidity}%</p>
-                <p class="text-lg">Wind: ${forecast.wind.speed} m/s</p>
-            </div>
-        `;
+        <div id="forecast" class="bg-white bg-cover bg-no-repeat p-4 rounded shadow">
+          <h3 class="text-xl font-bold">${new Date(
+            forecast.dt * 1000
+          ).toLocaleDateString()}</h3>
+          <p class="text-lg">${forecast.weather[0].description}</p>
+          <p class="text-lg">Temp: ${forecast.main.temp} °C</p>
+          <p class="text-lg">Humidity: ${forecast.main.humidity}%</p>
+          <p class="text-lg">Wind: ${forecast.wind.speed} m/s</p>
+        </div>
+      `;
     })
     .join("");
 }
@@ -191,29 +215,78 @@ function getDailyForecasts(forecasts) {
   return dailyForecasts.slice(0, 5);
 }
 
-function updateBackground(weather) {
+function updateBackground(weather, isDay) {
   const body = document.body;
   switch (weather.toLowerCase()) {
     case "clear":
-      body.className = "bg-clear-sky";
+      body.className = isDay
+        ? "bg-bg-clear-sky bg-cover bg-no-repeat"
+        : "bg-bg-night bg-cover bg-no-repeat";
       break;
     case "rain":
-      body.className = "bg-rainy";
+    case "light rain":
+    case "moderate rain":
+    case "heavy intensity rain":
+    case "very heavy rain":
+    case "extreme rain":
+    case "freezing rain":
+      body.className = "bg-bg-rainy bg-cover bg-no-repeat";
       break;
     case "snow":
-      body.className = "bg-snowy";
+    case "light snow":
+    case "heavy snow":
+    case "sleet":
+    case "shower sleet":
+    case "light rain and snow":
+    case "rain and snow":
+    case "light shower snow":
+    case "shower snow":
+    case "heavy shower snow":
+      body.className = "bg-bg-snowy bg-cover bg-no-repeat";
       break;
     case "clouds":
-      body.className = "bg-cloudy";
+    case "few clouds": // 11-25%
+    case "scattered clouds": // 25-50%
+    case "broken clouds": // 51-84%
+    case "overcast clouds": // 85-100%
+      body.className = "bg-bg-cloudy bg-cover bg-no-repeat";
       break;
-    case "wind":
-      body.className = "bg-windy";
+    case "thunderstorm":
+    case "thunderstorm with light rain":
+    case "thunderstorm with rain":
+    case "thunderstorm with heavy rain":
+    case "light thunderstorm":
+    case "heavy thunderstorm":
+    case "ragged thunderstorm":
+    case "thunderstorm with light drizzle":
+    case "thunderstorm with drizzle":
+    case "thunderstorm with heavy drizzle":
+      body.className = "bg-bg-thunderstorm bg-cover bg-no-repeat";
       break;
-    case "night":
-      body.className = "bg-night";
+    case "drizzle":
+    case "light intensity drizzle":
+    case "drizzle rain":
+    case "heavy intensity drizzle":
+    case "light intensity drizzle rain":
+    case "drizzle rain":
+    case "heavy intensity drizzle rain":
+    case "shower drizzle":
+      body.className = "bg-bg-drizzle bg-cover bg-no-repeat";
+      break;
+    case "mist":
+    case "smoke":
+    case "haze":
+    case "sand/ dust whirls":
+    case "fog":
+    case "sand":
+    case "dust":
+    case "volcanic ash":
+    case "squalls":
+    case "tornado":
+      body.className = "bg-bg-misty bg-cover bg-no-repeat";
       break;
     default:
-      body.className = "bg-gray-100";
+      body.className = "bg-bg-default bg-cover bg-no-repeat";
   }
 }
 
