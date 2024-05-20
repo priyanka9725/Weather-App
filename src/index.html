@@ -5,23 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather Forecast Application</title>
     <link href="./output.css" rel="stylesheet" />
+    <script
+      src="https://kit.fontawesome.com/408f2dff6b.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body class="bg-bg-default bg-cover bg-no-repeat text-gray-900">
-    <div id="app" class="bg-gray-100/[0.4] container mx-4 my-4 p-4">
-      <h1 class="text-3xl font-bold mb-4">Weather Forecast Application</h1>
+    <h1 class="text-3xl font-bold mb-4 bg-slate-200/[0.3] text-center p-4 mx-4">
+      Weather Forecast Application
+    </h1>
+    <div id="app" class="bg-gray-100/[0.2] mx-4 my-4 p-4">
       <div class="mb-4">
         <input
           id="city-input"
           type="text"
-          class="border p-2 rounded"
+          class="border p-2 rounded outline-none text-purple-950 font-bold focus:bg-gray-200"
           placeholder="Enter city name"
         />
-        <button id="search-btn" class="bg-blue-500 text-white p-2 rounded">
+        <button
+          id="search-btn"
+          class="bg-gray-600 hover:bg-gradient-to-bl from-slate-400 to-slate-100 text-slate-100 hover:text-black font-bold p-2 rounded shadow"
+        >
           Search
         </button>
         <button
           id="current-location-btn"
-          class="bg-green-500 text-white p-2 rounded"
+          class="bg-gray-600 hover:bg-gradient-to-bl from-slate-400 to-slate-100 text-slate-100 hover:text-black font-bold p-2 rounded shadow"
         >
           Use Current Location
         </button>
@@ -38,7 +47,7 @@
       >
         <!-- Weather info will be dynamically added here -->
       </div>
-      <h2 class="text-2xl font-bold mt-4">5-Day Forecast</h2>
+      <h2 class="text-2xl font-bold mt-2">5-Day Forecast</h2>
       <div
         id="forecast-container"
         class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
@@ -47,7 +56,7 @@
       </div>
       <div
         id="local-time"
-        class="absolute top-0 right-0 m-4 p-2 bg-white rounded shadow text-right"
+        class="absolute top-52 right-4 m-4 p-2 bg-inherit rounded shadow text-left text-inherit font-semibold"
       >
         <!-- Local time will be displayed here -->
       </div>

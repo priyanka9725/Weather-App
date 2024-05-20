@@ -2,8 +2,10 @@ const apiKey = "4e1f16e5eefd5f9fff7a61ce2643cc39";
 const apiBaseUrl = "https://api.openweathermap.org/data/2.5/";
 const maxRecentCities = 5;
 
+//function to get city
+
 let getCity = () => {
-  const city = document.getElementById("city-input").value;
+  const city = document.getElementById("city-input").value.trim();
   if (city) {
     updateWeatherByCity(city);
     saveCity(city);
@@ -11,9 +13,12 @@ let getCity = () => {
   } else {
     alert("Please enter a city name");
   }
+  city = "";
 };
 
 document.getElementById("search-btn").addEventListener("click", getCity);
+
+// function to get the current location
 
 let getCurrentLocation = () => {
   if (navigator.geolocation) {
@@ -40,6 +45,8 @@ function isDaytime(sunrise, sunset) {
   return now >= sunrise && now < sunset;
 }
 
+// function for storing recent searches (maximum 5) in the local storage
+
 function saveCity(city) {
   let cities = JSON.parse(localStorage.getItem("recentCities")) || [];
   cities = cities.filter((c) => c.toLowerCase() !== city.toLowerCase());
@@ -49,6 +56,8 @@ function saveCity(city) {
   }
   localStorage.setItem("recentCities", JSON.stringify(cities));
 }
+
+// function for displaying recent searches (maximum 5)
 
 function populateRecentCities() {
   const cities = JSON.parse(localStorage.getItem("recentCities")) || [];
@@ -60,7 +69,7 @@ function populateRecentCities() {
     recentCitiesContainer.innerHTML = cities
       .map(
         (city) =>
-          `<button class="recent-city-btn bg-blue-200 text-blue-800 p-2 rounded">${city}</button>`
+          `<button class="recent-city-btn bg-amber-100 text-blue-900 font-semibold p-2 rounded">${city}</button>`
       )
       .join("");
     document.querySelectorAll(".recent-city-btn").forEach((button) => {
@@ -72,6 +81,8 @@ function populateRecentCities() {
     recentCitiesContainer.classList.add("hidden");
   }
 }
+
+// async-await function to fetch weather information using entered city name
 
 async function fetchWeatherByCity(city) {
   try {
@@ -87,6 +98,8 @@ async function fetchWeatherByCity(city) {
   }
 }
 
+// async-await function to fetch weather information using current Location
+
 async function fetchWeatherByCoordinates(lat, lon) {
   try {
     const response = await fetch(
@@ -100,6 +113,8 @@ async function fetchWeatherByCoordinates(lat, lon) {
     alert(error.message);
   }
 }
+
+// async-await function to forecast weather information using entered city name
 
 async function fetchForecastByCity(city) {
   try {
@@ -115,6 +130,8 @@ async function fetchForecastByCity(city) {
   }
 }
 
+// async-await function to forecast weather information using current location
+
 async function fetchForecastByCoordinates(lat, lon) {
   try {
     const response = await fetch(
@@ -129,6 +146,8 @@ async function fetchForecastByCoordinates(lat, lon) {
   }
 }
 
+// function to update weather information using entered city
+
 async function updateWeatherByCity(city) {
   const weatherData = await fetchWeatherByCity(city);
   const forecastData = await fetchForecastByCity(city);
@@ -141,6 +160,8 @@ async function updateWeatherByCity(city) {
   }
 }
 
+//function to update weather information using current location
+
 async function updateWeatherByCoordinates(lat, lon) {
   const weatherData = await fetchWeatherByCoordinates(lat, lon);
   const forecastData = await fetchForecastByCoordinates(lat, lon);
@@ -152,20 +173,28 @@ async function updateWeatherByCoordinates(lat, lon) {
   }
 }
 
+//function to display current weather
+
 function displayCurrentWeather(data) {
   const container = document.getElementById("weather-container");
 
   const localTime = getLocalTime(data.timezone);
+  const weatherIcon = getWeatherIcon(
+    data.weather[0].main,
+    isDaytime(data.sys.sunrise, data.sys.sunset)
+  );
 
   container.innerHTML = `
-        <div id="displayWeather" class="bg-white p-4 rounded shadow">
-            <h2 class="text-2xl font-bold">${data.name}, ${data.sys.country}</h2>
-            <p class="text-lg">${data.weather[0].description}</p>
+        <div class="bg-gray-200 hover:bg-gradient-to-r from-gray-300/[0.5] to-blue-100 text-black p-4 rounded shadow-lg">
+            <h2 class="text-2xl font-bold text-blue-900">${data.name}, ${data.sys.country}</h2>
+            <p class="text-lg"><i class="${weatherIcon}"></i> ${data.weather[0].description}</p>
             <p class="text-lg">Temperature: ${data.main.temp} °C</p>
             <p class="text-lg">Humidity: ${data.main.humidity}%</p>
             <p class="text-lg">Wind Speed: ${data.wind.speed} m/s</p>
         </div>
-    `;
+
+        `;
+  //for displaying current time
 
   const localTimeContainer = document.getElementById("local-time");
   localTimeContainer.innerHTML = `
@@ -173,11 +202,44 @@ function displayCurrentWeather(data) {
         <p>${localTime}</p>
     `;
 }
+
+function getWeatherIcon(weather, isDay) {
+  switch (weather.toLowerCase()) {
+    case "clear":
+      return isDay ? "fas fa-sun" : "fas fa-moon";
+    case "clouds":
+      return "fas fa-cloud";
+    case "rain":
+    case "drizzle":
+      return "fas fa-cloud-showers-heavy";
+    case "thunderstorm":
+      return "fas fa-bolt";
+    case "snow":
+      return "fas fa-snowflake";
+    case "mist":
+    case "smoke":
+    case "haze":
+    case "fog":
+    case "sand":
+    case "dust":
+    case "ash":
+    case "squall":
+    case "tornado":
+      return "fas fa-smog";
+    default:
+      return "fas fa-cloud";
+  }
+}
+
+// function for fetching current time
+
 function getLocalTime(timezoneOffset) {
   const now = new Date();
   const localTime = new Date(now.getTime() + timezoneOffset * 1000);
   return localTime.toLocaleString("en-US", { timeZone: "UTC" });
 }
+
+// function to display 5-day forecast
 
 function displayForecast(data) {
   const container = document.getElementById("forecast-container");
@@ -185,12 +247,15 @@ function displayForecast(data) {
 
   container.innerHTML = dailyForecasts
     .map((forecast) => {
+      const weatherIcon = getWeatherIcon(forecast.weather[0].main, true);
       return `
-        <div id="forecast" class="bg-white bg-cover bg-no-repeat p-4 rounded shadow">
-          <h3 class="text-xl font-bold">${new Date(
+        <div class="bg-gray-200 hover:bg-gradient-to-r from-gray-300/[0.5] to-blue-100 p-4 text-black rounded shadow">
+          <h3 class="text-xl font-bold text-blue-900">${new Date(
             forecast.dt * 1000
           ).toLocaleDateString()}</h3>
-          <p class="text-lg">${forecast.weather[0].description}</p>
+          <p class="text-lg"><i class="${weatherIcon}"></i> ${
+        forecast.weather[0].description
+      }</p>
           <p class="text-lg">Temp: ${forecast.main.temp} °C</p>
           <p class="text-lg">Humidity: ${forecast.main.humidity}%</p>
           <p class="text-lg">Wind: ${forecast.wind.speed} m/s</p>
@@ -199,6 +264,8 @@ function displayForecast(data) {
     })
     .join("");
 }
+
+// function to fetch 5-day forecast
 
 function getDailyForecasts(forecasts) {
   const dailyForecasts = [];
@@ -215,13 +282,15 @@ function getDailyForecasts(forecasts) {
   return dailyForecasts.slice(0, 5);
 }
 
+// function for updating background as per the weather condition
+
 function updateBackground(weather, isDay) {
   const body = document.body;
   switch (weather.toLowerCase()) {
     case "clear":
       body.className = isDay
         ? "bg-bg-clear-sky bg-cover bg-no-repeat"
-        : "bg-bg-night bg-cover bg-no-repeat";
+        : "bg-bg-night bg-cover bg-no-repeat text-white";
       break;
     case "rain":
     case "light rain":
@@ -245,10 +314,10 @@ function updateBackground(weather, isDay) {
       body.className = "bg-bg-snowy bg-cover bg-no-repeat";
       break;
     case "clouds":
-    case "few clouds": // 11-25%
-    case "scattered clouds": // 25-50%
-    case "broken clouds": // 51-84%
-    case "overcast clouds": // 85-100%
+    case "few clouds":
+    case "scattered clouds":
+    case "broken clouds":
+    case "overcast clouds":
       body.className = "bg-bg-cloudy bg-cover bg-no-repeat";
       break;
     case "thunderstorm":
@@ -290,5 +359,5 @@ function updateBackground(weather, isDay) {
   }
 }
 
-// Populate recent cities buttons on page load
+// to Populate recent cities buttons on page load
 document.addEventListener("DOMContentLoaded", populateRecentCities);
