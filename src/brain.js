@@ -305,7 +305,7 @@ let getExtendedForecast = function (forecasts) {
     }
   });
   return dailyForecasts.slice(0, 6);
-}
+};
 
 // function to display 6-day forecast
 
@@ -352,7 +352,7 @@ let saveSearch = function (city) {
     cities.pop();
   }
   localStorage.setItem("recentCities", JSON.stringify(cities));
-}
+};
 
 // localStorage.clear();
 
@@ -379,7 +379,7 @@ let showRecentCities = function () {
   } else {
     recentCitiesContainer.classList.add("hidden");
   }
-}
+};
 
 // to Populate recent cities buttons on page load
 document.addEventListener("DOMContentLoaded", showRecentCities);

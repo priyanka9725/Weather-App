@@ -1,0 +1,32 @@
+
+
+## Project SetUp
+
+1. Clone the github repository using 
+
+    url(https://github.com/priyanka9725/Weather-App.git)
+
+2. Navigate into the project 
+
+    cd Weather-App
+
+3. Install and intialize tailwind CSS 
+4. Ensure backgrounds are added to the project directory
+
+
+## Features of the project 
+
+---> Searches Weather data using City Name as well as using the current location.
+---> Displays current weather data taking time into account.
+---> It shows 6-days extended weather forecast data.
+---> Updates the background based on the current weather data.
+---> Dynamically Shows UTC time of the given location or city name
+
+## Technologies Used
+
+-> HTML
+-> Tailwind CSS
+-> JavaScript
+-> OpenWeatherMap API
+
+This Weather App uses the OpenWeatherMap API with the API key {4e1f16e5eefd5f9fff7a61ce2643cc39}
