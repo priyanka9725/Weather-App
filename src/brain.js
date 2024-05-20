@@ -291,7 +291,7 @@ function getDailyForecasts(forecasts) {
     }
   });
 
-  return dailyForecasts.slice(0, 7);
+  return dailyForecasts.slice(0, 5);
 }
 
 // function for updating background as per the weather condition
