@@ -2,7 +2,7 @@ const apiKey = "4e1f16e5eefd5f9fff7a61ce2643cc39";
 const apiBaseUrl = "https://api.openweathermap.org/data/2.5/";
 const maxRecentCities = 5;
 
-//function to get city
+// event listener function to get city
 
 let getCity = () => {
   const city = document.getElementById("city-input").value.trim();
@@ -17,7 +17,7 @@ let getCity = () => {
 
 document.getElementById("search-btn").addEventListener("click", getCity);
 
-// function to get the current location
+// event listener function to get the current location
 
 let getCurrentLocation = () => {
   if (navigator.geolocation) {
@@ -97,7 +97,7 @@ getLatLong = async function (lat, lon) {
 let updateWeatherCord = async function (lat, lon) {
   const weatherData = await getLatLong(lat, lon);
   const forecastData = await getForecastCord(lat, lon);
-  if (weatherData && forecastData) {
+  if (weatherData && forecastData) {          //checking if both weatherData and forecastData are fetched 
     displayWeatherData(weatherData);
     extendedForecast(forecastData);
     const isDay = isDaytime(weatherData.sys.sunrise, weatherData.sys.sunset);
@@ -209,7 +209,7 @@ let getForecastCord = async function (lat, lon) {
     if (!response.ok) throw new Error("Location not found");
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch (error) {         
     console.error(error);
     alert(error.message);
   }
@@ -246,9 +246,9 @@ function displayWeatherData(data) {
 
 // function for calling the corresponding icons
 
-let getWeatherIcon = function (weather, isDay) {
+let getWeatherIcon = function (weather, isDay) {   // these updates the weather icon according to the weather description
   switch (
-    weather.toLowerCase() // tolower case because the open Weather App has weather criteria in lower case
+    weather.toLowerCase() 
   ) {
     case "clear":
       return isDay ? "fas fa-sun" : "fas fa-moon";
@@ -282,10 +282,10 @@ let getWeatherIcon = function (weather, isDay) {
 function getLocalTime(timezoneOffset) {
   const now = new Date();
   const localTime = new Date(now.getTime() + timezoneOffset * 1000);
-  return localTime.toLocaleString("en-US", { timeZone: "UTC" });
+  return localTime.toLocaleString("en-US", { timeZone: "UTC" });  // us timezone as offered  by the API
 }
 
-// function to fetch 5-day forecast
+// function to fetch 5-days forecast
 
 let getExtendedForecast = function (forecasts) {
   const dailyForecasts = [];
@@ -315,7 +315,7 @@ let extendedForecast = function (data) {
       const forecastDate = new Date(forecast.dt * 1000);
       const dayOfWeek = forecastDate.toLocaleDateString("en-US", {
         weekday: "short",
-      });
+      });  // for displaying short form of the day names
       return `
         <div class="flex flex-col text-left bg-gradient-to-t from-gray-200/[0.6] to-gray-400/[0.4] p-4 text-inherit rounded shadow-[0_0_2rem_-10px_rgba(0,0,0)]">
           <h3 class="text-xl font-bold text-blue-900 my-2">${dayOfWeek}, ${forecastDate.toLocaleDateString()}</h3>
