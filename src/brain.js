@@ -191,6 +191,7 @@ let getForecastData = async function (city) {
     );
     if (!response.ok) throw new Error("City not found");
     const data = await response.json();
+    console.log(data);
     return data;
   } catch (error) {
     console.error(error);
@@ -225,29 +226,22 @@ function displayWeatherData(data) {
   );
 
   container.innerHTML = `
-            <div class= " flex justify-between bg-gray-200 hover:bg-gradient-to-r from-gray-300/[0.5] to-blue-100 text-black p-4 rounded shadow-lg shadow-white">
+            <div class= " flex justify-between bg-gradient-to-b from-gray-200/[0.4] to-gray-400/[0.4] text-inherit p-4 rounded shadow-[0_0_2rem_-10px_rgba(0,0,0)]">
             <div class="flex flex-col ">
             <h2 class="text-2xl font-bold text-blue-900 my-2">${data.name}, ${data.sys.country}</h2>
-            <p class="text-lg font-semibold"> ${data.weather[0].description}</p>
-            <p class="text-lg"><i class="fa-solid fa-temperature-three-quarters"></i> Temperature: ${data.main.temp} °C</p>
-            <p class="text-lg"><i class="fa-solid fa-water"></i> Humidity: ${data.main.humidity}%</p>
-            <p class="text-lg"><i class="fa-solid fa-wind"></i> Wind Speed: ${data.wind.speed} m/s</p>
+            <p class="text-lg font-bold">${localTime}</p>
+            <p class="text-lg font-serif font-extrabold capitalize">${data.weather[0].description}</p>
+            <p class="text-lg font-semibold"><i class="fa-solid fa-temperature-three-quarters" style="color: #ff5900;"></i> Temperature: ${data.main.temp} °C</p>
+            <p class="text-lg font-semibold"><i class="fa-solid fa-arrow-down" style="color:#0091ff;"></i> ${data.main.temp_min} °C <span class="text-lg"><i class="fa-solid fa-arrow-up" style="color:#FFBF00;"></i> ${data.main.temp_max} °C </span></p>
+            <p class="text-lg font-semibold"><i class="fa-solid fa-water" style="color: #00FFFF;"></i> Humidity: ${data.main.humidity}%</p>
+            <p class="text-lg font-semibold"><i class="fa-solid fa-wind" style="color:#fff08f;"></i> Wind Speed: ${data.wind.speed} m/s</p>
+            <p class="text-lg font-semibold"><i class="fa-solid fa-p" style="color:#A020F0;"></i> Pressure: ${data.main.pressure} hPa</p>
             </div>
             <div>
-            <i class="${weatherIcon} text-4xl"></i>
+            <i class="${weatherIcon} text-4xl text-amber-500 animate-[float_2s_ease-in-out_infinite]"></i>
             </div>
             </div>
-
         `;
-
-  //for displaying current time
-
-  const localTimeContainer = document.getElementById("local-time");
-  localTimeContainer.classList.remove("hidden"); //
-  localTimeContainer.innerHTML = `
-        <h3 class="text-xl font-bold">Local Time</h3>
-        <p>${localTime}</p>
-    `;
 }
 
 // function for calling the corresponding icons
@@ -291,7 +285,7 @@ function getLocalTime(timezoneOffset) {
   return localTime.toLocaleString("en-US", { timeZone: "UTC" });
 }
 
-// function to fetch 6-day forecast
+// function to fetch 5-day forecast
 
 let getExtendedForecast = function (forecasts) {
   const dailyForecasts = [];
@@ -307,7 +301,7 @@ let getExtendedForecast = function (forecasts) {
   return dailyForecasts.slice(0, 6);
 };
 
-// function to display 6-day forecast
+// function to display 5-day forecast
 
 let extendedForecast = function (data) {
   const container = document.getElementById("forecast-container");
@@ -318,22 +312,32 @@ let extendedForecast = function (data) {
   container.innerHTML = dailyForecasts
     .map((forecast) => {
       const weatherIcon = getWeatherIcon(forecast.weather[0].main, true);
+      const forecastDate = new Date(forecast.dt * 1000);
+      const dayOfWeek = forecastDate.toLocaleDateString("en-US", {
+        weekday: "short",
+      });
       return `
-        <div class="flex flex-col items-center bg-gray-200 hover:bg-gradient-to-r from-gray-300/[0.5] to-blue-100 p-4 text-black rounded shadow-lg shadow-white">
-          <h3 class="text-xl font-bold text-blue-900 my-2">${new Date(
-            forecast.dt * 1000
-          ).toLocaleDateString()}</h3>
-          <i class="${weatherIcon} text-2xl"></i>
-          <p class="text-lg font-semibold"> ${
-            forecast.weather[0].description
-          }</p>
-          <p class="text-lg"><i class="fa-solid fa-temperature-three-quarters"></i> Temp: ${
+        <div class="flex flex-col text-left bg-gradient-to-t from-gray-200/[0.6] to-gray-400/[0.4] p-4 text-inherit rounded shadow-[0_0_2rem_-10px_rgba(0,0,0)]">
+          <h3 class="text-xl font-bold text-blue-900 my-2">${dayOfWeek}, ${forecastDate.toLocaleDateString()}</h3>
+          <i class="${weatherIcon} text-2xl text-lime-300 animate-[float_2s_ease-in-out_infinite]"></i>
+          <p class="text-lg font-serif font-extrabold capitalize"> ${forecast.weather[0].description}</p>
+          <p class="text-lg  font-semibold"><i class="fa-solid fa-temperature-three-quarters" style="color: #ff5900;"></i> Temp: ${
             forecast.main.temp
           } °C</p>
-          <p class="text-lg"><i class="fa-solid fa-water"></i> Humidity: ${
+                      <p class="text-lg  font-semibold"><i class="fa-solid fa-arrow-down" style="color:#0091ff;"></i> ${
+                        forecast.main.temp_min
+                      } °C             <span class="text-lg  font-semibold"><i class="fa-solid fa-arrow-up" style="color:#FFBF00;"></i>${
+        forecast.main.temp_max
+      } °C</span></p>
+
+          <p class="text-lg  font-semibold"><i class="fa-solid fa-water" style="color: #00FFFF;"></i> Humidity: ${
             forecast.main.humidity
           }%</p>
-          <p class="text-lg"><i class="fa-solid fa-wind"></i> Wind: ${
+          <p class="text-lg  font-semibold"><i class="fa-solid fa-cloud-rain" style="color:#4000ff;"></i> Rain: ${
+            forecast.rain ? forecast.rain["3h"] : 0
+          } mm</p>
+
+          <p class="text-lg  font-semibold"><i class="fa-solid fa-wind" style="color:#fff08f;"></i> Wind: ${
             forecast.wind.speed
           } m/s</p>
         </div>

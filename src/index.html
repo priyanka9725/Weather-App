@@ -10,9 +10,9 @@
       crossorigin="anonymous"
     ></script>
   </head>
-  <body class="bg-bg-default bg-cover bg-no-repeat text-gray-900 h-screen">
+  <body class="bg-bg-default bg-cover bg-no-repeat text-gray-900">
     <h1
-      class="text-3xl font-extrabold font-serif text-inherit mb-4 bg-slate-200/[0.3] text-center p-4 mx-4 my-4"
+      class="text-3xl font-extrabold font-serif text-inherit mb-4 bg-slate-200/[0.3] text-center p-4"
     >
       Weather Forecast Application
     </h1>
@@ -21,43 +21,39 @@
         <input
           id="city-input"
           type="text"
-          class="border border-solid border-gray-400 p-2 rounded outline-none text-purple-950 font-bold focus:bg-gray-200 focus:border-blue-800 shadow-md hover:ring-2 shadow-white"
+          class="border border-solid border-gray-400 p-2 rounded outline-none text-purple-950 font-bold focus:bg-gray-200 focus:border-blue-800 shadow hover:ring-2 shadow-white"
           placeholder="Enter city name"
         />
         <button
           id="search-btn"
-          class="bg-gray-600 hover:bg-gradient-to-bl from-slate-400 to-slate-100 text-slate-100 hover:text-black font-bold p-2 rounded shadow-md shadow-white transition duration-300"
+          class="bg-gray-600 hover:bg-gradient-to-bl from-slate-400 to-slate-100 text-slate-100 hover:text-black font-bold p-2 rounded shadow shadow-white transition duration-300"
         >
-          Search
+          <i class="fa-solid fa-magnifying-glass"></i> Search
         </button>
         <button
           id="current-location-btn"
-          class="bg-gray-600 hover:bg-gradient-to-bl from-slate-400 to-slate-100 text-slate-100 hover:text-black font-bold p-2 rounded shadow-md shadow-white transition duration-300"
+          class="bg-gray-600 hover:bg-gradient-to-bl from-slate-400 to-slate-100 text-slate-100 hover:text-black font-bold p-2 rounded shadow shadow-white transition duration-300"
         >
-          Use Current Location
+          <i class="fa-solid fa-location-dot"></i> Use Current Location
         </button>
       </div>
       <div id="recent-cities-container" class="mb-4 flex flex-wrap gap-2">
         <!-- Recently searched city buttons will be dynamically added here -->
       </div>
-      <div
-        id="local-time"
-        class="relative sm:absolute sm:top-52 sm:right-4 m-4 p-2 bg-inherit rounded shadow-md shadow-white text-left text-inherit font-semibold hidden"
-      >
-        <!-- Local time will be displayed here -->
-      </div>
+
       <div
         id="weather-container"
         class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
       >
         <!-- Weather info will be dynamically added here -->
       </div>
+
       <h2 id="heading" class="text-2xl font-bold mt-2 hidden">
-        6-Days Forecast
+        5-Days Forecast
       </h2>
       <div
         id="forecast-container"
-        class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4"
+        class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4"
       >
         <!-- Forecast info will be dynamically added here -->
       </div>
